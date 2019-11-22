@@ -11,6 +11,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
@@ -18,6 +19,9 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "Observe";
+
+    CompositeDisposable disposable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,10 +33,14 @@ public class MainActivity extends AppCompatActivity {
 
         Observable<String> finalObservable = toFlowable.toObservable();
 
+        disposable = new CompositeDisposable();
+
         finalObservable.subscribe(new Observer<String>() {
             @Override
             public void onSubscribe(Disposable d) {
                 Log.d(TAG, "onSubscribe-String");
+                disposable.add(d);
+
             }
 
             @Override
@@ -97,5 +105,14 @@ public class MainActivity extends AppCompatActivity {
 
     private Observable<String> getAnimalObservable(){
         return Observable.just("Ant", "Dog", "Fish", "Ram");
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        disposable.clear();
+        Log.d(TAG, "disposable cleared: "+Thread.currentThread().getName());
+
+        super.onDestroy();
     }
 }
