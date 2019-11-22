@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
@@ -24,25 +26,29 @@ public class MainActivity extends AppCompatActivity {
 
         Observable<String> animalObservable = getAnimalObservable();
 
-        animalObservable.subscribe(new Observer<String>() {
+        Flowable<String> toFlowable = animalObservable.toFlowable(BackpressureStrategy.BUFFER);
+
+        Observable<String> finalObservable = toFlowable.toObservable();
+
+        finalObservable.subscribe(new Observer<String>() {
             @Override
             public void onSubscribe(Disposable d) {
-
+                Log.d(TAG, "onSubscribe-String");
             }
 
             @Override
             public void onNext(String s) {
-
+                Log.d(TAG, "onSubscribe: "+s);
             }
 
             @Override
             public void onError(Throwable e) {
-
+                Log.d(TAG, "onError: : " + e);
             }
 
             @Override
             public void onComplete() {
-
+                Log.d(TAG, "onComplete: : ");
             }
         });
 
